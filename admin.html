@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 페이지 - 커튼 견적</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* 로그인 화면 */
+    .login-wrap {
+      background: #16213e;
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      text-align: center;
+    }
+    .login-wrap h1 { color: #e2b97e; font-size: 22px; margin-bottom: 6px; }
+    .login-wrap p { color: #7a8aaa; font-size: 13px; margin-bottom: 28px; }
+    .login-wrap input {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 12px;
+      border: 1.5px solid #2a3a5e;
+      background: #0f3460;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      text-align: center;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+    }
+    .login-wrap input:focus { border-color: #e2b97e; }
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      background: #e2b97e;
+      color: #1a1a2e;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .login-btn:hover { background: #d4a86a; }
+    .login-error { color: #ff6b6b; font-size: 13px; margin-top: 10px; display: none; }
+
+    /* 관리자 화면 */
+    .admin-wrap {
+      display: none;
+      width: 100%;
+      max-width: 700px;
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .admin-header h1 { color: #e2b97e; font-size: 20px; }
+    .logout-btn {
+      background: #2a3a5e;
+      color: #aab;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .logout-btn:hover { background: #3a4a6e; }
+
+    .section {
+      background: #16213e;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .section h2 {
+      color: #e2b97e;
+      font-size: 15px;
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #2a3a5e;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .field label {
+      display: block;
+      color: #7a8aaa;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1.5px solid #2a3a5e;
+      background: #0f3460;
+      color: white;
+      font-size: 14px;
+      outline: none;
+    }
+    .field input:focus { border-color: #e2b97e; }
+    .field .unit { color: #7a8aaa; font-size: 11px; margin-top: 4px; }
+
+    .save-btn {
+      width: 100%;
+      padding: 14px;
+      background: #e2b97e;
+      color: #1a1a2e;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .save-btn:hover { background: #d4a86a; }
+    .save-msg {
+      text-align: center;
+      color: #6be0a0;
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* 비밀번호 변경 */
+    .pw-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .worker-note {
+      background: #0f3460;
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #7a8aaa;
+      font-size: 12px;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+    .worker-note strong { color: #e2b97e; }
+  </style>
+</head>
+<body>
+
+<!-- 로그인 화면 -->
+<div class="login-wrap" id="loginWrap">
+  <h1>🔐 관리자 로그인</h1>
+  <p>커튼 견적 관리자 페이지입니다</p>
+  <input type="password" id="pwInput" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter') login()">
+  <button class="login-btn" onclick="login()">로그인</button>
+  <div class="login-error" id="loginError">비밀번호가 틀렸어요!</div>
+</div>
+
+<!-- 관리자 화면 -->
+<div class="admin-wrap" id="adminWrap">
+  <div class="admin-header">
+    <h1>⚙️ 견적 관리자 페이지</h1>
+    <button class="logout-btn" onclick="logout()">로그아웃</button>
+  </div>
+
+  <!-- 공간별 기본 단가 -->
+  <div class="section">
+    <h2>🏠 공간별 기본 단가 (만원)</h2>
+    <div class="grid">
+      <div class="field">
+        <label>거실</label>
+        <input type="number" id="r_거실" value="40">
+        <div class="unit">만원</div>
+      </div>
+      <div class="field">
+        <label>안방</label>
+        <input type="number" id="r_안방" value="30">
+        <div class="unit">만원</div>
+      </div>
+      <div class="field">
+        <label>작은방</label>
+        <input type="number" id="r_작은방" value="20">
+        <div class="unit">만원</div>
+      </div>
+      <div class="field">
+        <label>주방</label>
+        <input type="number" id="r_주방" value="25">
+        <div class="unit">만원</div>
+      </div>
+      <div class="field">
+        <label>드레스룸</label>
+        <input type="number" id="r_드레스룸" value="20">
+        <div class="unit">만원</div>
+      </div>
+      <div class="field">
+        <label>기타</label>
+        <input type="number" id="r_기타" value="30">
+        <div class="unit">만원</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 스타일 계수 -->
+  <div class="section">
+    <h2>🪟 스타일별 계수</h2>
+    <div class="grid">
+      <div class="field">
+        <label>암막커튼</label>
+        <input type="number" step="0.1" id="s_암막커튼" value="1.3">
+        <div class="unit">단가 × 계수 = 금액</div>
+      </div>
+      <div class="field">
+        <label>쉬폰커튼</label>
+        <input type="number" step="0.1" id="s_쉬폰커튼" value="1.0">
+        <div class="unit">단가 × 계수 = 금액</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 평수 계수 -->
+  <div class="section">
+    <h2>📐 평수별 계수</h2>
+    <div class="grid">
+      <div class="field">
+        <label>20평 이하</label>
+        <input type="number" step="0.1" id="sz_20평 이하" value="1.0">
+      </div>
+      <div class="field">
+        <label>30평대</label>
+        <input type="number" step="0.1" id="sz_30평대" value="1.2">
+      </div>
+      <div class="field">
+        <label>40평대</label>
+        <input type="number" step="0.1" id="sz_40평대" value="1.5">
+      </div>
+      <div class="field">
+        <label>50평 이상</label>
+        <input type="number" step="0.1" id="sz_50평 이상" value="1.8">
+      </div>
+    </div>
+  </div>
+
+  <!-- 견적 범위 -->
+  <div class="section">
+    <h2>📊 견적 범위 설정 (%)</h2>
+    <div class="grid">
+      <div class="field">
+        <label>하한 (예: 10 → -10%)</label>
+        <input type="number" id="rangeLow" value="10">
+        <div class="unit">% 낮게</div>
+      </div>
+      <div class="field">
+        <label>상한 (예: 10 → +10%)</label>
+        <input type="number" id="rangeHigh" value="10">
+        <div class="unit">% 높게</div>
+      </div>
+    </div>
+    <div class="worker-note">
+      ⚠️ <strong>주의:</strong> 아래 단가/계수를 수정하면 Cloudflare Worker 코드도 같이 수정해야 실제 계산에 반영돼요.<br>
+      이 페이지는 수정할 값을 정리해두는 용도로 활용하세요.
+    </div>
+  </div>
+
+  <!-- 비밀번호 변경 -->
+  <div class="section">
+    <h2>🔑 비밀번호 변경</h2>
+    <div class="pw-grid">
+      <div class="field">
+        <label>새 비밀번호</label>
+        <input type="password" id="newPw" placeholder="새 비밀번호">
+      </div>
+      <div class="field">
+        <label>비밀번호 확인</label>
+        <input type="password" id="newPwConfirm" placeholder="다시 입력">
+      </div>
+    </div>
+    <button class="save-btn" style="background:#4a6fa5; margin-top:0;" onclick="changePw()">비밀번호 변경</button>
+    <div class="save-msg" id="pwMsg">✅ 비밀번호가 변경됐어요!</div>
+  </div>
+
+  <button class="save-btn" onclick="saveAll()">💾 전체 저장</button>
+  <div class="save-msg" id="saveMsg">✅ 저장됐어요! Worker 코드도 업데이트해 주세요.</div>
+</div>
+
+<script>
+  // 저장된 비밀번호 불러오기 (없으면 기본값 1234)
+  let ADMIN_PW = localStorage.getItem('admin_pw') || '1234';
+
+  // 저장된 설정 불러오기
+  function loadSettings() {
+    const saved = localStorage.getItem('curtain_settings');
+    if (!saved) return;
+    const s = JSON.parse(saved);
+    if (s.rooms) {
+      Object.keys(s.rooms).forEach(k => {
+        const el = document.getElementById('r_' + k);
+        if (el) el.value = s.rooms[k];
+      });
+    }
+    if (s.styles) {
+      Object.keys(s.styles).forEach(k => {
+        const el = document.getElementById('s_' + k);
+        if (el) el.value = s.styles[k];
+      });
+    }
+    if (s.sizes) {
+      Object.keys(s.sizes).forEach(k => {
+        const el = document.getElementById('sz_' + k);
+        if (el) el.value = s.sizes[k];
+      });
+    }
+    if (s.rangeLow) document.getElementById('rangeLow').value = s.rangeLow;
+    if (s.rangeHigh) document.getElementById('rangeHigh').value = s.rangeHigh;
+  }
+
+  function login() {
+    const input = document.getElementById('pwInput').value;
+    if (input === ADMIN_PW) {
+      document.getElementById('loginWrap').style.display = 'none';
+      document.getElementById('adminWrap').style.display = 'block';
+      loadSettings();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  }
+
+  function logout() {
+    document.getElementById('loginWrap').style.display = 'flex';
+    document.getElementById('adminWrap').style.display = 'none';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('loginError').style.display = 'none';
+  }
+
+  function saveAll() {
+    const settings = {
+      rooms: {
+        '거실': document.getElementById('r_거실').value,
+        '안방': document.getElementById('r_안방').value,
+        '작은방': document.getElementById('r_작은방').value,
+        '주방': document.getElementById('r_주방').value,
+        '드레스룸': document.getElementById('r_드레스룸').value,
+        '기타': document.getElementById('r_기타').value,
+      },
+      styles: {
+        '암막커튼': document.getElementById('s_암막커튼').value,
+        '쉬폰커튼': document.getElementById('s_쉬폰커튼').value,
+      },
+      sizes: {
+        '20평 이하': document.getElementById('sz_20평 이하').value,
+        '30평대': document.getElementById('sz_30평대').value,
+        '40평대': document.getElementById('sz_40평대').value,
+        '50평 이상': document.getElementById('sz_50평 이상').value,
+      },
+      rangeLow: document.getElementById('rangeLow').value,
+      rangeHigh: document.getElementById('rangeHigh').value,
+    };
+    localStorage.setItem('curtain_settings', JSON.stringify(settings));
+    const msg = document.getElementById('saveMsg');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 3000);
+  }
+
+  function changePw() {
+    const np = document.getElementById('newPw').value;
+    const nc = document.getElementById('newPwConfirm').value;
+    if (!np) { alert('새 비밀번호를 입력해주세요!'); return; }
+    if (np !== nc) { alert('비밀번호가 일치하지 않아요!'); return; }
+    localStorage.setItem('admin_pw', np);
+    ADMIN_PW = np;
+    document.getElementById('newPw').value = '';
+    document.getElementById('newPwConfirm').value = '';
+    const msg = document.getElementById('pwMsg');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 3000);
+  }
+</script>
+</body>
+</html>
